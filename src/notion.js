@@ -1,50 +1,96 @@
-import { Client } from "@notionhq/client";
-import dotenv from "dotenv";
+import { Client, LogLevel } from '@notionhq/client';
+import dotenv from 'dotenv';
 
 dotenv.config();
 const notion = new Client({
-    auth: process.env.NOTION_KEY,
+  auth: process.env.NOTION_KEY,
+  logLevel: LogLevel.DEBUG,
 });
 const blockId = process.env.NOTION_ID_DB;
 
-// Выводит заголовки блоков
-// (async () => {
-//     const response = await notion.databases.query({ database_id: blockId });
-//     console.log(response.results.forEach((item) => console.log(item.properties.Name.title[0].text.content)));
-// })();
+export const getListLength = async () => {
+  try {
+    const response = await notion.databases.retrieve({ database_id: blockId });
+    return Object.keys(response.properties).length;
+  } catch (error) {
+    console.error(error);
+    return 0; // или любое другое значение по умолчанию
+  }
+};
 
-export const createNewGroup = async (text) => {
-    try {
-        const response = await notion.pages.create({
-            parent: { database_id: blockId },
-            properties: {
-                Name: {
-                    title: [
-                        {
-                            text: {
-                                content: text,
-                            },
-                        },
-                    ],
-                },
-                Status: {
-                    status: {
-                        name: "In progress",
-                    },
-                },
-                "Assigned To": {
-                    people: [
-                        {
-                            object: "user",
-                            id: "c2f20311-9e54-4d11-8c79-7398424ae41e",
-                        },
-                    ],
-                },
+export const createNewGroup = async (propertiesData) => {
+  //   const parameters = {
+  //     parent: { database_id: blockId },
+  //     properties: propertiesData,
+  //   };
+
+  //   await notion.pages.create(parameters);
+  try {
+    const response = await notion.pages.create({
+      parent: { database_id: blockId },
+      //   Дата добавляется в Notion автоматически
+      properties: {
+        Наименование: {
+          title: [
+            {
+              text: {
+                content: 'Стул',
+              },
             },
-        });
-        console.log(response);
-        return response;
-    } catch (error) {
-        console.error("Error fetching database:", error);
-    }
+          ],
+        },
+        Отдел: {
+          relation: [
+            {
+              id: '80698abe-57f2-454d-9a6c-27e8065848af',
+            },
+          ],
+        },
+        'Статья бюджета': {
+          rich_text: [
+            {
+              text: {
+                content: 'A dark green leafy vegetable',
+              },
+            },
+          ],
+        },
+        Счета: {
+          url: 'https://disk.yandex.ru/i/Rk9i19RsrVTrRw',
+        },
+        Status: {
+          type: 'status',
+          status: {
+            name: 'Согласовать', //Оплачен
+          },
+        },
+        Срочность: {
+          type: 'status',
+          status: {
+            name: 'Не срочно', //Срочно
+          },
+        },
+        Заявитель: {
+          people: [
+            {
+              id: 'eb7fad6f-e1b1-4109-ab9f-9db7924041b6',
+              //   id: ' ',
+            },
+          ],
+        },
+        Утверждающий: {
+          people: [
+            {
+              id: 'eb7fad6f-e1b1-4109-ab9f-9db7924041b6',
+              //   id: ' ',
+            },
+          ],
+        },
+      },
+    });
+
+    return response;
+  } catch (error) {
+    console.error('Error fetching database:', error);
+  }
 };
