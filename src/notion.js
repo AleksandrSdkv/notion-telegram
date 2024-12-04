@@ -19,77 +19,76 @@ export const getListLength = async () => {
 };
 
 export const createNewGroup = async (propertiesData) => {
-  //   const parameters = {
-  //     parent: { database_id: blockId },
-  //     properties: propertiesData,
-  //   };
-
-  //   await notion.pages.create(parameters);
+  console.log(propertiesData);
   try {
-    const response = await notion.pages.create({
+    const parameters = {
       parent: { database_id: blockId },
-      //   Дата добавляется в Notion автоматически
-      properties: {
-        Наименование: {
-          title: [
-            {
-              text: {
-                content: 'Стул',
-              },
-            },
-          ],
-        },
-        Отдел: {
-          relation: [
-            {
-              id: '80698abe-57f2-454d-9a6c-27e8065848af',
-            },
-          ],
-        },
-        'Статья бюджета': {
-          rich_text: [
-            {
-              text: {
-                content: 'A dark green leafy vegetable',
-              },
-            },
-          ],
-        },
-        Счета: {
-          url: 'https://disk.yandex.ru/i/Rk9i19RsrVTrRw',
-        },
-        Status: {
-          type: 'status',
-          status: {
-            name: 'Согласовать', //Оплачен
-          },
-        },
-        Срочность: {
-          type: 'status',
-          status: {
-            name: 'Не срочно', //Срочно
-          },
-        },
-        Заявитель: {
-          people: [
-            {
-              id: 'eb7fad6f-e1b1-4109-ab9f-9db7924041b6',
-              //   id: ' ',
-            },
-          ],
-        },
-        Утверждающий: {
-          people: [
-            {
-              id: 'eb7fad6f-e1b1-4109-ab9f-9db7924041b6',
-              //   id: ' ',
-            },
-          ],
-        },
-      },
-    });
+      properties: propertiesData,
+    };
 
-    return response;
+    await notion.pages.create(parameters);
+    // const response = await notion.pages.create({
+    // parent: { database_id: blockId },
+    //   Дата добавляется в Notion автоматически
+    // properties: {
+    //   Наименование: {
+    //     title: [
+    //       {
+    //         text: {
+    //           content: 'Стул',
+    //         },
+    //       },
+    //     ],
+    //   },
+    // Отдел: {
+    //   relation: [
+    //     {
+    //       id: '80698abe-57f2-454d-9a6c-27e8065848af',
+    //     },
+    //   ],
+    // },
+    // 'Статья бюджета': {
+    //   rich_text: [
+    //     {
+    //       text: {
+    //         content: 'A dark green leafy vegetable',
+    //       },
+    //     },
+    //   ],
+    // },
+    // Счета: {
+    //   url: 'https://disk.yandex.ru/i/Rk9i19RsrVTrRw',
+    // },
+    // Status: {
+    //   type: 'status',
+    //   status: {
+    //     name: 'Согласовать', //Оплачен
+    //   },
+    // },
+    // Срочность: {
+    //   type: 'status',
+    //   status: {
+    //     name: 'Не срочно', //Срочно
+    //   },
+    // },
+    // Заявитель: {
+    //   people: [
+    //     {
+    //       id: 'eb7fad6f-e1b1-4109-ab9f-9db7924041b6',
+    //       //   id: ' ',
+    //     },
+    //   ],
+    // },
+    // Утверждающий: {
+    //   people: [
+    //     {
+    //       id: 'eb7fad6f-e1b1-4109-ab9f-9db7924041b6',
+    //       //   id: ' ',
+    //     },
+    //   ],
+    // },
+    // },
+    // });
   } catch (error) {
     console.error('Error fetching database:', error);
   }

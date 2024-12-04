@@ -1,25 +1,25 @@
 {
-    "name": "your-project-name",
-    "license": "ISC",
-    "version": "1.0.0",
-    "main": "index.js",
-    "type": "module",
-    "scripts": {
-        "start": "node ./src/main.js",
-        "dev": "nodemon ./src/main.js",
-        "format": "prettier --write ."
-    },
-    "devDependencies": {
-        "nodemon": "^3.1.7",
-        "eslint": "^9.16.0",
-        "prettier": "^3.4.1",
-        "eslint-config-prettier": "^9.1.0"
-    },
-    "dependencies": {
-        "@notionhq/client": "^2.2.15",
-        "config": "^3.3.12",
-        "dotenv": "^16.4.6",
-        "punycode": "^2.3.1",
-        "telegraf": "^4.16.3"
-    }
+  "name": "your-project-name",
+  "license": "ISC",
+  "version": "1.0.0",
+  "main": "index.js",
+  "type": "module",
+  "scripts": {
+    "start": "node ./src/main.js",
+    "dev": "nodemon ./src/main.js",
+    "format": "prettier --write ."
+  },
+  "devDependencies": {
+    "nodemon": "^3.1.7",
+    "eslint": "^9.16.0",
+    "prettier": "^3.4.1",
+    "eslint-config-prettier": "^9.1.0"
+  },
+  "dependencies": {
+    "@notionhq/client": "^2.2.15",
+    "config": "^3.3.12",
+    "dotenv": "^16.4.6",
+    "punycode": "^2.3.1",
+    "telegraf": "^4.16.3"
+  }
 }
