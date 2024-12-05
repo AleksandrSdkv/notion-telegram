@@ -39,7 +39,9 @@
 //     },
 //   });
 // });
-
+bot.action('Aleksandr', async (ctx) => {
+  ctx.reply('действие');
+});
 Object.entries(database.properties).forEach(([propertyName, propertyValue]) => {
   console.log(`${propertyName}: ${propertyValue.type}`);
 });
