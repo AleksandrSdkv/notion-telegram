@@ -19,13 +19,12 @@ export const getListLength = async () => {
 };
 
 export const createNewGroup = async (propertiesData) => {
-  console.log(propertiesData);
   try {
     const parameters = {
       parent: { database_id: blockId },
       properties: propertiesData,
     };
-
+    console.log(parameters, 'запрос');
     await notion.pages.create(parameters);
     // const response = await notion.pages.create({
     // parent: { database_id: blockId },

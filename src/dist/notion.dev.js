@@ -57,14 +57,14 @@ var createNewGroup = function createNewGroup(propertiesData) {
     while (1) {
       switch (_context2.prev = _context2.next) {
         case 0:
-          console.log(propertiesData);
-          _context2.prev = 1;
+          _context2.prev = 0;
           parameters = {
             parent: {
               database_id: blockId
             },
             properties: propertiesData
           };
+          console.log(parameters, 'запрос');
           _context2.next = 5;
           return regeneratorRuntime.awrap(notion.pages.create(parameters));
 
@@ -74,7 +74,7 @@ var createNewGroup = function createNewGroup(propertiesData) {
 
         case 7:
           _context2.prev = 7;
-          _context2.t0 = _context2["catch"](1);
+          _context2.t0 = _context2["catch"](0);
           console.error('Error fetching database:', _context2.t0);
 
         case 10:
@@ -82,7 +82,7 @@ var createNewGroup = function createNewGroup(propertiesData) {
           return _context2.stop();
       }
     }
-  }, null, null, [[1, 7]]);
+  }, null, null, [[0, 7]]);
 };
 
 exports.createNewGroup = createNewGroup;
