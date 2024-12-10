@@ -1,8 +1,7 @@
-import { Telegraf, Scenes, session, Markup } from 'telegraf';
+import { Telegraf, Scenes, session } from 'telegraf';
+import { registrationWizard } from './wizardScene/index.js';
 import { personal } from './data.js';
-import axios from 'axios';
-import fs from 'fs';
-import { createNewGroup, getListLength } from './notion.js';
+import { createNewGroup } from './notion.js';
 import dotenv from 'dotenv';
 dotenv.config();
 
@@ -19,120 +18,8 @@ const foundPerson = (ctx) => {
   );
   return found;
 };
-const key = {
-  out: 'Выйти',
-};
-
-// Шаг 1: Запрос имени пользователя
-const step1 = async (ctx) => {
-  ctx.wizard.state.list = {};
-  ctx.reply(
-    'Выберите заявителя:',
-    Markup.keyboard([['Aleksandr', 'Vladimir'], [`${key.out}`]])
-      .resize()
-      .oneTime(),
-  );
-  return ctx.wizard.next(); // Переход к следующему шагу
-};
-
-// Шаг 2: Запрос возраста пользователя
-const step2 = async (ctx) => {
-  const fileId = ctx.message.document.file_id; // Получаем file_id документа
-  const fileName = ctx.message.document.file_name; // Имя файла
-  try {
-    // Получаем ссылку для скачивания файла с Telegram
-    const fileLink = await ctx.telegram.getFileLink(fileId);
-
-    // Получаем ссылку для загрузки на Яндекс Диск
-    const uploadUrl = await getYandexDiskUploadUrl(fileName);
-
-    // Загружаем файл с Telegram и сразу отправляем его на Яндекс Диск
-    const response = await axios({
-      method: 'get',
-      url: fileLink,
-      responseType: 'stream', // Получаем поток данных
-    });
-
-    // Загружаем поток в Яндекс Диск
-    const uploadResponse = await axios.put(uploadUrl, response.data, {
-      headers: {
-        'Content-Type': 'application/octet-stream', // Тип содержимого
-      },
-    });
-
-    if (uploadResponse.status === 201) {
-      console.log(`Файл ${fileName} успешно загружен на Яндекс Диск!`);
-      ctx.reply(`Файл ${fileName} был успешно загружен на Яндекс Диск.`);
-    } else {
-      console.error('Ошибка загрузки на Яндекс Диск:', uploadResponse.status);
-      ctx.reply('Произошла ошибка при загрузке на Яндекс Диск.');
-    }
-  } catch (error) {
-    console.error('Ошибка при скачивании или загрузке файла:', error);
-    ctx.reply('Произошла ошибка при обработке файла.');
-  }
-
-  await axios
-    .put(
-      `https://cloud-api.yandex.net/v1/disk/resources/publish?path=${fileName}`,
-      null, // Здесь не требуется тело запроса
-      {
-        headers: {
-          Authorization: `OAuth ${process.env.MY_TOKEN}`,
-          'Content-Type': 'application/json',
-        },
-      },
-    )
-
-    .then((response) => {
-      console.log(response.data.href, 'asdasd');
-      // Печатаем public_url (ссылку на файл) и public_key (ключ)
-      console.log('Ссылка на файл:', response);
-      console.log('Public Key:', response);
-    })
-    .catch((error) => {
-      console.error(
-        'Ошибка publich:',
-        error.response ? error.response.data : error.message,
-      );
-    });
-
-  //   const metadataResponse = await axios.get(
-  //     `https://cloud-api.yandex.net/v1/disk/resources?path=${fileName}`,
-  //     {
-  //       headers: {
-  //         Authorization: `OAuth ${process.env.MY_TOKEN}`,
-  //       },
-  //     },
-  //   );
-  //   console.log(metadataResponse, 'asdasd');
-};
 
 // Функция для получения ссылки для загрузки файла на Яндекс Диск
-async function getYandexDiskUploadUrl(fileName) {
-  const uploadUrl = 'https://cloud-api.yandex.net/v1/disk/resources/upload';
-  const path = `/${fileName}`; // Путь на Яндекс Диске, куда будет загружен файл
-
-  const headers = {
-    Authorization: ` ${process.env.MY_TOKEN}`, // Авторизация с OAuth токеном
-  };
-
-  try {
-    // Получаем URL для загрузки файла
-    const res = await axios.get(uploadUrl, {
-      headers,
-      params: { path },
-    });
-
-    return res.data.href; // URL для загрузки файла на Яндекс Диск
-  } catch (error) {
-    console.error(
-      'Ошибка получения ссылки для загрузки на Яндекс Диск:',
-      error,
-    );
-    throw new Error('Не удалось получить ссылку для загрузки на Яндекс Диск');
-  }
-}
 
 //   if (ctx.message.text === 'Выйти') {
 //     await ctx.reply('Вы вышли из сцены. Введите /start, чтобы начать снова.');
@@ -277,51 +164,17 @@ const stepConfirmation = async (ctx) => {
   }
 };
 
-// Создание Wizard Scene
-const registrationWizard = new Scenes.WizardScene(
-  'registration-wizard',
-  step1,
-  step2,
-  step3,
-  step4,
-  stepСheck,
-  stepConfirmation,
-);
-
-// Создаем менеджер сцен и добавляем сцену
-const stage = new Scenes.Stage([registrationWizard]);
-
 // Включаем поддержку сессий и сцен
 bot.use(session());
-bot.use(stage.middleware());
+bot.use(registrationWizard); // подключаем сцены через stage.middleware()
 
 // Обрабатываем команду /create для запуска сцены
 bot.command('create', (ctx) => ctx.scene.enter('registration-wizard'));
 
-// Запуск бота
 bot
   .launch()
   .then(() => console.log('Бот запущен 🚀'))
   .catch((err) => console.error('Ошибка при запуске бота:', err));
 
-// Обработка ошибок
 process.once('SIGINT', () => bot.stop('SIGINT'));
 process.once('SIGTERM', () => bot.stop('SIGTERM'));
-// const oauthToken = process.env.MY_TOKEN; // Замените на ваш OAuth-токен
-
-// // URL API для получения списка файлов
-// const url = 'https://cloud-api.yandex.net/v1/disk';
-
-// fetch(url, {
-//   method: 'GET',
-//   headers: {
-//     Authorization: `${oauthToken}`,
-//     'content-type': 'application/json; charset=utf-8',
-//   },
-// })
-//   .then((response) => response.json())
-//   .then((data) => console.log(data)) // Преобразуем ответ в формат JSON
-
-//   .catch((error) => {
-//     console.error('Error:', error); // Обработка ошибок
-//   });
