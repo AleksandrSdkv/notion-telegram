@@ -37,47 +37,44 @@ const step1 = async (ctx) => {
 
 // Шаг 2: Запрос возраста пользователя
 const step2 = async (ctx) => {
-  //   const fileId = ctx.message.document.file_id; // Получаем file_id документа
-  //   const fileName = ctx.message.document.file_name; // Имя файла
-  //   let filePublickUrl;
-  //   try {
-  //     // Получаем ссылку для скачивания файла с Telegram
-  //     const fileLink = await ctx.telegram.getFileLink(fileId);
+  const fileId = ctx.message.document.file_id; // Получаем file_id документа
+  const fileName = ctx.message.document.file_name; // Имя файла
+  try {
+    // Получаем ссылку для скачивания файла с Telegram
+    const fileLink = await ctx.telegram.getFileLink(fileId);
 
-  //     // Получаем ссылку для загрузки на Яндекс Диск
-  //     const uploadUrl = await getYandexDiskUploadUrl(fileName);
-  //     console.log(uploadUrl);
-  //     // Загружаем файл с Telegram и сразу отправляем его на Яндекс Диск
-  //     const response = await axios({
-  //       method: 'get',
-  //       url: fileLink,
-  //       responseType: 'stream', // Получаем поток данных
-  //     });
+    // Получаем ссылку для загрузки на Яндекс Диск
+    const uploadUrl = await getYandexDiskUploadUrl(fileName);
 
-  //     // Загружаем поток в Яндекс Диск
-  //     const uploadResponse = await axios.put(uploadUrl, response.data, {
-  //       headers: {
-  //         'Content-Type': 'application/octet-stream', // Тип содержимого
-  //       },
-  //     });
+    // Загружаем файл с Telegram и сразу отправляем его на Яндекс Диск
+    const response = await axios({
+      method: 'get',
+      url: fileLink,
+      responseType: 'stream', // Получаем поток данных
+    });
 
-  //     if (uploadResponse.status === 201) {
-  //       filePublickUrl = uploadResponse.headers.location;
-  //       console.log(uploadResponse);
-  //       console.log(`Файл ${fileName} успешно загружен на Яндекс Диск!`);
-  //       ctx.reply(`Файл ${fileName} был успешно загружен на Яндекс Диск.`);
-  //     } else {
-  //       console.error('Ошибка загрузки на Яндекс Диск:', uploadResponse.status);
-  //       ctx.reply('Произошла ошибка при загрузке на Яндекс Диск.');
-  //     }
-  //   } catch (error) {
-  //     console.error('Ошибка при скачивании или загрузке файла:', error);
-  //     ctx.reply('Произошла ошибка при обработке файла.');
-  //   }
+    // Загружаем поток в Яндекс Диск
+    const uploadResponse = await axios.put(uploadUrl, response.data, {
+      headers: {
+        'Content-Type': 'application/octet-stream', // Тип содержимого
+      },
+    });
+
+    if (uploadResponse.status === 201) {
+      console.log(`Файл ${fileName} успешно загружен на Яндекс Диск!`);
+      ctx.reply(`Файл ${fileName} был успешно загружен на Яндекс Диск.`);
+    } else {
+      console.error('Ошибка загрузки на Яндекс Диск:', uploadResponse.status);
+      ctx.reply('Произошла ошибка при загрузке на Яндекс Диск.');
+    }
+  } catch (error) {
+    console.error('Ошибка при скачивании или загрузке файла:', error);
+    ctx.reply('Произошла ошибка при обработке файла.');
+  }
 
   await axios
     .put(
-      `https://cloud-api.yandex.net/v1/disk/resources/publish?path=${encodeURIComponent('janus.js')}`,
+      `https://cloud-api.yandex.net/v1/disk/resources/publish?path=${fileName}`,
       null, // Здесь не требуется тело запроса
       {
         headers: {
@@ -90,25 +87,25 @@ const step2 = async (ctx) => {
     .then((response) => {
       console.log(response.data.href, 'asdasd');
       // Печатаем public_url (ссылку на файл) и public_key (ключ)
-      console.log('Ссылка на файл:', response.data.public_url);
-      console.log('Public Key:', response.data.public_key);
+      console.log('Ссылка на файл:', response);
+      console.log('Public Key:', response);
     })
     .catch((error) => {
       console.error(
-        'Ошибка:',
+        'Ошибка publich:',
         error.response ? error.response.data : error.message,
       );
     });
 
-  const metadataResponse = await axios.get(
-    `https://cloud-api.yandex.net/v1/disk/resources?path=${encodeURIComponent('disk:/janus.js')}`,
-    {
-      headers: {
-        Authorization: `OAuth ${process.env.MY_TOKEN}`,
-      },
-    },
-  );
-  console.log(metadataResponse);
+  //   const metadataResponse = await axios.get(
+  //     `https://cloud-api.yandex.net/v1/disk/resources?path=${fileName}`,
+  //     {
+  //       headers: {
+  //         Authorization: `OAuth ${process.env.MY_TOKEN}`,
+  //       },
+  //     },
+  //   );
+  //   console.log(metadataResponse, 'asdasd');
 };
 
 // Функция для получения ссылки для загрузки файла на Яндекс Диск
