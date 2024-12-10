@@ -10,13 +10,14 @@
     "format": "prettier --write ."
   },
   "devDependencies": {
-    "nodemon": "^3.1.7",
     "eslint": "^9.16.0",
-    "prettier": "^3.4.1",
-    "eslint-config-prettier": "^9.1.0"
+    "eslint-config-prettier": "^9.1.0",
+    "nodemon": "^3.1.7",
+    "prettier": "^3.4.1"
   },
   "dependencies": {
     "@notionhq/client": "^2.2.15",
+    "axios": "^1.7.9",
     "config": "^3.3.12",
     "dotenv": "^16.4.6",
     "punycode": "^2.3.1",

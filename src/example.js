@@ -114,3 +114,38 @@ bot.use(async (ctx) => {
 
 // bot.on(message('text'), (ctx) => createNewGroup(ctx.message.text));
 // bot.on('text', (ctx) => ctx.reply(ctx.message.text));
+
+
+bot.on('document', async (ctx) => {
+    const fileId = ctx.message.document.file_id; // Получаем file_id документа
+    const fileName = ctx.message.document.file_name; // Имя файла
+
+    try {
+        // Получаем ссылку для скачивания файла
+        const fileLink = await ctx.telegram.getFileLink(fileId);
+
+        // Загружаем файл
+        const response = await axios({
+            method: 'get',
+            url: fileLink,
+            responseType: 'stream'
+        });
+
+        // Сохраняем файл на сервере
+        const writer = fs.createWriteStream(`./${fileName}`);
+        response.data.pipe(writer);
+
+        writer.on('finish', () => {
+            console.log(`Файл ${fileName} успешно загружен!`);
+            ctx.reply(`Файл ${fileName} был успешно загружен.`);
+        });
+
+        writer.on('error', (err) => {
+            console.error('Ошибка записи файла:', err);
+            ctx.reply('Произошла ошибка при сохранении файла.');
+        });
+    } catch (error) {
+        console.error('Ошибка при скачивании файла:', error);
+        ctx.reply('Произошла ошибка при получении файла.');
+    }
+});
