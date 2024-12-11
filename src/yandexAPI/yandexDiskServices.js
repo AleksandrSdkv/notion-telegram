@@ -18,7 +18,7 @@ export async function getYandexDiskUploadUrl(
       'Ошибка получения ссылки для загрузки на Яндекс Диск:',
       error.message || error,
     );
-    throw new Error('Не удалось получить ссылку для загрузки на Яндекс Диск');
+    return;
   }
 }
 

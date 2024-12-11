@@ -1,42 +1,36 @@
-import axios from 'axios';
-import {
-  getYandexDiskUploadUrl,
-  publishFileToYandexDisk,
-  getYandexDiskFileMetadata,
-} from '../../yandexAPI/yandexDiskServices.js';
-
+import { personal } from '../../data.js';
+import { foundPerson } from '../../constants/helpers.js';
+import { key } from '../../constants/buttonConstants.js';
+import { Markup } from 'telegraf';
 export const step2 = async (ctx) => {
-  try {
-    const { file_id: fileId, file_name: fileName } = ctx.message.document;
-    const pathName = '/testBot/';
-    const [fileLink, uploadUrl] = await Promise.all([
-      ctx.telegram.getFileLink(fileId),
-      getYandexDiskUploadUrl(fileName, pathName, process.env.MY_TOKEN),
-    ]);
-
-    const response = await axios.get(fileLink, { responseType: 'stream' });
-    const uploadResponse = await axios.put(uploadUrl, response.data, {
-      headers: { 'Content-Type': 'application/octet-stream' },
-    });
-
-    if (uploadResponse.status !== 201)
-      throw new Error('Ошибка загрузки на Яндекс Диск');
-
-    await ctx.reply(`Файл ${fileName} был успешно загружен.`);
-    publishFileToYandexDisk(fileName, pathName, process.env.MY_TOKEN).then(
-      (_) => {
-        getYandexDiskFileMetadata(
-          fileName,
-          pathName,
-          process.env.MY_TOKEN,
-        ).then((res) => {
-          ctx.reply(`Ваш файл доступен по ссылке: ${res.data.public_url}`);
-        });
-      },
+  if (ctx.message.text === 'Выйти') {
+    await ctx.reply('Вы вышли из сцены. Введите /edit, чтобы начать снова.');
+    return ctx.scene.leave();
+  }
+  const person = foundPerson(ctx.message.text, personal);
+  if (!person) {
+    await ctx.reply(
+      `Вы выбрали: ${ctx.message.text}. К сожалению сотрудника с таким именем нет! Введите /start, чтобы начать снова.`,
     );
-  } catch (error) {
-    await ctx.reply('Ошибка при обработке файла.');
-    console.error(error);
+    ctx.scene.leave();
+    return;
+  }
+  if (person) {
+    ctx.wizard.state.personal = ctx.message.text;
+    await ctx.reply(
+      `Отлично, ${ctx.message.text}!  Пожалуйста, введите поле "Наименование" (пример: "Стул"):`,
+      Markup.keyboard([[`${key.out}`]])
+        .resize()
+        .oneTime(),
+    );
+    ctx.wizard.state.list['Заявитель'] = {
+      // Сохраняем имя пользователя
+      people: [
+        {
+          id: person.id,
+        },
+      ],
+    };
   }
   return ctx.wizard.next();
 };
