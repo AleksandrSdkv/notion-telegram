@@ -1,5 +1,6 @@
 import { Client, LogLevel } from '@notionhq/client';
 import dotenv from 'dotenv';
+import fs from 'fs';
 
 dotenv.config();
 const notion = new Client({
@@ -7,16 +8,6 @@ const notion = new Client({
   logLevel: LogLevel.DEBUG,
 });
 const blockId = process.env.NOTION_ID_DB;
-
-export const getListLength = async () => {
-  try {
-    const response = await notion.databases.retrieve({ database_id: blockId });
-    return Object.keys(response.properties).length;
-  } catch (error) {
-    console.error(error);
-    return 0; // или любое другое значение по умолчанию
-  }
-};
 
 export const createNewGroup = async (propertiesData) => {
   try {

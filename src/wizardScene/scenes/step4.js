@@ -46,7 +46,7 @@ export const step4 = async (ctx) => {
           process.env.MY_TOKEN,
         ).then((res) => {
           ctx.wizard.state.expense = res.data.public_url;
-          ctx.wizard.state.list['Счета'] = {
+          ctx.wizard.state.list['Счет'] = {
             url: res.data.public_url,
           };
           ctx.reply(

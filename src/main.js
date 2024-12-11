@@ -14,7 +14,7 @@ bot.use(session());
 bot.use(registrationWizard);
 
 bot.command('create', (ctx) => ctx.scene.enter('registration-wizard'));
-
+bot.start((ctx) => console.log(ctx.message.from));
 bot
   .launch()
   .then(() => console.log('Бот запущен 🚀'))
