@@ -5,7 +5,7 @@ export const step1 = async (ctx) => {
   ctx.reply(
     'Выберите заявителя:',
     Markup.keyboard([
-      ['Лилия Иванова', 'Полина Михайлова', 'Гузель Шангараева'],
+      ['Лилия Иванова', 'Regina Yunusova', 'Гузель Шангараева'],
       [`${key.out}`],
     ])
       .resize()

@@ -1,27 +1,35 @@
+import { personal } from '../../constants/data.js';
+import { foundPerson } from '../../constants/helpers.js';
+import { key } from '../../constants/buttonConstants.js';
+import { Markup } from 'telegraf';
+import { stageOut } from '../../constants/helpers.js';
 export const step3 = async (ctx) => {
   if (ctx.message.text === 'Выйти') {
-    await ctx.reply('Вы вышли из сцены. Введите /create, чтобы начать снова.');
-    return ctx.scene.leave();
+    return await stageOut(ctx);
   }
-  if (!ctx.message.text) {
+  const person = foundPerson(ctx.message.text, personal);
+  if (!person) {
     await ctx.reply(
-      `Произошла ошибка загрузки файла попробуйте начать снова /create`,
+      `Вы выбрали: ${ctx.message.text}. К сожалению сотрудника с таким именем нет! Введите /create, чтобы начать снова.`,
     );
-    return ctx.scene.leave();
+    ctx.scene.leave();
+    return;
   }
-  ctx.wizard.state.list['Наименование'] = {
-    title: [
-      {
-        text: {
-          content: ctx.message.text,
+  if (person) {
+    ctx.wizard.state.approving = ctx.message.text;
+    await ctx.reply(
+      `Отлично, пожалуйста, введите поле "Наименование" (пример: "Стул"):`,
+      Markup.keyboard([[`${key.out}`]])
+        .resize()
+        .oneTime(),
+    );
+    ctx.wizard.state.list['Утверждающий'] = {
+      people: [
+        {
+          id: person.id,
         },
-      },
-    ],
-  };
-  ctx.wizard.state.product = ctx.message.text;
-  await ctx.reply(
-    `Вы выбрали: ${ctx.message.text}. Далее нужно загрузить счет в формате PDF`,
-  );
-
-  return ctx.wizard.next();
+      ],
+    };
+  }
+  return ctx.wizard.next(); // Переход к следующему шагу
 };

@@ -1,53 +1,135 @@
-import { key } from '../../constants/buttonConstants.js';
+import axios from 'axios';
 import { Markup } from 'telegraf';
+import { key } from '../../constants/buttonConstants.js';
+import {
+  getYandexDiskUploadUrl,
+  publishFileToYandexDisk,
+  getYandexDiskFileMetadata,
+} from '../../yandexAPI/yandexDiskServices.js';
+import { stageOut } from '../../constants/helpers.js';
+
 export const step5 = async (ctx) => {
   if (ctx.message.text === 'Выйти') {
-    await ctx.reply('Вы вышли из сцены. Введите /create, чтобы начать снова.');
+    return await stageOut(ctx);
+  }
+  if (!ctx.message.document && !ctx.message.photo) {
+    await ctx.reply(
+      `Произошла ошибка загрузки файла попробуйте начать снова /create`,
+    );
     return ctx.scene.leave();
   }
-  if (ctx.message.text !== 'Не срочно' && ctx.message.text !== 'Срочно') {
-    await ctx.reply(
-      `Вы выбрали: ${ctx.message.text}. пожалуйста Выберите правильный вариант или нажмите Выйти`,
-      Markup.keyboard([['Срочно', 'Не срочно'], [`${key.out}`]])
-        .resize()
-        .oneTime(),
-    );
+  const pathName = '/testBot/';
+  if (ctx.message.document) {
+    try {
+      const { file_id: fileId, file_name: fileName } = ctx.message.document;
+
+      const [fileLink, uploadUrl] = await Promise.all([
+        ctx.telegram.getFileLink(fileId),
+        getYandexDiskUploadUrl(fileName, pathName, process.env.MY_TOKEN),
+      ]);
+
+      const response = await axios.get(fileLink, { responseType: 'stream' });
+      const uploadResponse = await axios.put(uploadUrl, response.data, {
+        headers: { 'Content-Type': 'application/octet-stream' },
+      });
+
+      if (uploadResponse.status !== 201) {
+        await ctx.reply(
+          `Произошла ошибка загрузки файла попробуйте начать снова /create`,
+        );
+        return ctx.scene.leave();
+      }
+
+      publishFileToYandexDisk(fileName, pathName, process.env.MY_TOKEN).then(
+        (_) => {
+          getYandexDiskFileMetadata(
+            fileName,
+            pathName,
+            process.env.MY_TOKEN,
+          ).then((res) => {
+            ctx.wizard.state.expense = res.data.public_url;
+
+            ctx.wizard.state.list['Счет'] = {
+              files: [
+                {
+                  name: ctx.wizard.state.product,
+                  external: {
+                    url: res.data.public_url,
+                  },
+                },
+              ],
+            };
+            ctx.reply(
+              `Ваш файл доступен по ссылке: ${res.data.public_url}, выберите срочность заявки:`,
+              Markup.keyboard([['Срочно', 'Не срочно'], [`${key.out}`]])
+                .resize()
+                .oneTime(),
+            );
+            return ctx.wizard.next();
+          });
+        },
+      );
+    } catch (error) {
+      await ctx.reply(
+        'Ошибка при обработке файла возможно файл с таким именем уже есть. Попробуйте еще раз /create',
+      );
+      console.error(error);
+      return ctx.scene.leave();
+    }
   }
+  if (ctx.message.photo) {
+    try {
+      const fileId = ctx.message.photo[ctx.message.photo.length - 1].file_id;
+      const photoName = `${ctx.message.photo[ctx.message.photo.length - 1].file_unique_id}.jpg`;
+      const [fileLink, uploadUrl] = await Promise.all([
+        ctx.telegram.getFileLink(fileId),
+        getYandexDiskUploadUrl(photoName, pathName, process.env.MY_TOKEN),
+      ]);
+      const response = await axios.get(fileLink, { responseType: 'stream' });
+      const uploadResponse = await axios.put(uploadUrl, response.data, {
+        headers: { 'Content-Type': 'application/octet-stream' },
+      });
+      if (uploadResponse.status !== 201) {
+        await ctx.reply(
+          `Произошла ошибка загрузки файла. Попробуйте начать снова /create`,
+        );
+        return ctx.scene.leave();
+      }
 
-  if (ctx.message.text === 'Срочно') {
-    ctx.wizard.state.list['Срочность'] = {
-      type: 'status',
-      status: {
-        name: 'Срочно',
-      },
-    };
-    ctx.wizard.state.quickly = ctx.message.text;
-    await ctx.reply(
-      `Вы выбрали: ${ctx.message.text}. пожалуйста Выберите отель`,
-      Markup.keyboard([
-        ['Somov Hotel', 'Cho Hotel'],
-        ['Karl House', 'Ma Apart'],
-        ['Spot 80', '1010 Апартаменты'],
-        [`${key.out}`],
-      ])
-        .resize()
-        .oneTime(),
-    );
-
-    return ctx.wizard.next();
+      publishFileToYandexDisk(photoName, pathName, process.env.MY_TOKEN).then(
+        (_) => {
+          getYandexDiskFileMetadata(
+            photoName,
+            pathName,
+            process.env.MY_TOKEN,
+          ).then((res) => {
+            ctx.wizard.state.expense = res.data.public_url;
+            ctx.wizard.state.list['Счет'] = {
+              files: [
+                {
+                  name: ctx.wizard.state.product,
+                  external: {
+                    url: res.data.public_url,
+                  },
+                },
+              ],
+            };
+            ctx.reply(
+              `Ваш файл доступен по ссылке: ${res.data.public_url}, выберите срочность заявки:`,
+              Markup.keyboard([['Срочно', 'Не срочно'], [`${key.out}`]])
+                .resize()
+                .oneTime(),
+            );
+            return ctx.wizard.next();
+          });
+        },
+      );
+    } catch (error) {
+      await ctx.reply(
+        'Ошибка при обработке файла возможно файл с таким именем уже есть. Попробуйте еще раз /create',
+      );
+      console.error(error);
+      return ctx.scene.leave();
+    }
   }
-  ctx.wizard.state.quickly = 'Не срочно';
-  await ctx.reply(
-    `Вы выбрали: ${ctx.message.text}. пожалуйста Выберите отель`,
-    Markup.keyboard([
-      ['Somov Hotel', 'Cho Hotel'],
-      ['Karl House', 'Ma Apart'],
-      ['Spot 80', '1010 Апартаменты'],
-      [`${key.out}`],
-    ])
-      .resize()
-      .oneTime(),
-  );
-
-  return ctx.wizard.next();
 };

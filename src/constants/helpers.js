@@ -16,3 +16,7 @@ export const foundHotel = (ctx, hotels) => {
   );
   return found;
 };
+export const stageOut = (ctx) => {
+  ctx.reply('Вы вышли из сцены. Введите /create, чтобы начать снова.');
+  return ctx.scene.leave();
+};

@@ -5,7 +5,7 @@ import { step3 } from './scenes/step3.js';
 import { step4 } from './scenes/step4.js';
 import { step5 } from './scenes/step5.js';
 import { step6 } from './scenes/step6.js';
-import { stepConfirmation } from './scenes/confirmation.js';
+import { stepConfirmation } from './scenes/stepConfirmation.js';
 
 const registrationWizard = new Scenes.Stage([
   new Scenes.WizardScene(

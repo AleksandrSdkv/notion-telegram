@@ -1,11 +1,11 @@
-import { personal } from '../../data.js';
+import { personal } from '../../constants/data.js';
 import { foundPerson } from '../../constants/helpers.js';
 import { key } from '../../constants/buttonConstants.js';
 import { Markup } from 'telegraf';
+import { stageOut } from '../../constants/helpers.js';
 export const step2 = async (ctx) => {
   if (ctx.message.text === 'Выйти') {
-    await ctx.reply('Вы вышли из сцены. Введите /create, чтобы начать снова.');
-    return ctx.scene.leave();
+    return await stageOut(ctx);
   }
   const person = foundPerson(ctx.message.text, personal);
   if (!person) {
@@ -17,14 +17,17 @@ export const step2 = async (ctx) => {
   }
   if (person) {
     ctx.wizard.state.personal = ctx.message.text;
-    await ctx.reply(
-      `Отлично, ${ctx.message.text}!  Пожалуйста, введите поле "Наименование" (пример: "Стул"):`,
-      Markup.keyboard([[`${key.out}`]])
+    ctx.reply(
+      'Выберите утверждающего:',
+      Markup.keyboard([
+        ['Сергей Матюшенко', 'Булат Ханнанов'],
+        ['Полина Михайлова', 'Арина Матюшенко'],
+        [`${key.out}`],
+      ])
         .resize()
         .oneTime(),
     );
     ctx.wizard.state.list['Заявитель'] = {
-      // Сохраняем имя пользователя
       people: [
         {
           id: person.id,
@@ -32,5 +35,6 @@ export const step2 = async (ctx) => {
       ],
     };
   }
+
   return ctx.wizard.next();
 };
