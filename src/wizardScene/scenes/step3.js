@@ -1,6 +1,6 @@
 export const step3 = async (ctx) => {
   if (ctx.message.text === 'Выйти') {
-    await ctx.reply('Вы вышли из сцены. Введите /start, чтобы начать снова.');
+    await ctx.reply('Вы вышли из сцены. Введите /create, чтобы начать снова.');
     return ctx.scene.leave();
   }
   if (!ctx.message.text) {

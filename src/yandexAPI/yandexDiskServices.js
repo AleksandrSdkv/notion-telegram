@@ -9,7 +9,7 @@ export async function getYandexDiskUploadUrl(
       'https://cloud-api.yandex.net/v1/disk/resources/upload',
       {
         headers: { Authorization: `OAuth ${yandexDiscToken}` },
-        params: { path: `${pathName}${fileName}` },
+        params: { path: `${pathName}${fileName}`, overwrite: true },
       },
     );
     return response.data.href; // URL для загрузки файла на Яндекс Диск

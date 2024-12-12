@@ -8,6 +8,22 @@ const notion = new Client({
   logLevel: LogLevel.DEBUG,
 });
 const blockId = process.env.NOTION_ID_DB;
+// (async () => {
+//   try {
+//     const response = await notion.databases.query({
+//       database_id: blockId,
+//     });
+//     const users = response.results.map((row) => {
+//       return {
+//         name: row.properties['🏡 Объекты'].relation,
+//       };
+//     });
+
+//     users.forEach((user) => console.log(user));
+//   } catch (error) {
+//     console.error('Ошибка при получении людей из базы:', error);
+//   }
+// })();
 
 export const createNewGroup = async (propertiesData) => {
   try {

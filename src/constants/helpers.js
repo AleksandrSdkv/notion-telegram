@@ -7,3 +7,12 @@ export const foundPerson = (ctx, personal) => {
   );
   return found;
 };
+export const foundHotel = (ctx, hotels) => {
+  if (!ctx) {
+    return 'Неправильный формат';
+  }
+  const found = hotels.find(
+    (hotel) => hotel.name.toLowerCase() === ctx.toLowerCase(),
+  );
+  return found;
+};
