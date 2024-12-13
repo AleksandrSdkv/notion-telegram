@@ -15,7 +15,7 @@ export const step4 = async (ctx) => {
   };
   ctx.wizard.state.product = ctx.message.text;
   await ctx.reply(
-    `Вы выбрали: ${ctx.message.text}. Далее нужно загрузить счет в формате PDF`,
+    `Вы выбрали: ${ctx.message.text}. Далее нужно загрузить счет на оплату`,
   );
 
   return ctx.wizard.next();

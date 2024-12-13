@@ -14,6 +14,10 @@ bot.use(session());
 bot.use(registrationWizard);
 
 bot.command('create', (ctx) => ctx.scene.enter('registration-wizard'));
+bot.on(['document', 'photo'], (ctx) => {
+  ctx.reply('📁 Файл получен! Запускаю процесс...');
+  ctx.scene.enter('registration-wizard');
+});
 bot.start((ctx) =>
   ctx.reply(`Привет ${ctx.message.from.first_name}
 Это бот для создания заявок. Для получения информации о командах нажмите /help

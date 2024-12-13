@@ -18,7 +18,7 @@ export const step5 = async (ctx) => {
     );
     return ctx.scene.leave();
   }
-  const pathName = '/testBot/';
+  const pathName = process.env.PATH_DISK;
   if (ctx.message.document) {
     try {
       const { file_id: fileId, file_name: fileName } = ctx.message.document;
@@ -26,7 +26,9 @@ export const step5 = async (ctx) => {
       const [fileLink, uploadUrl] = await Promise.all([
         ctx.telegram.getFileLink(fileId),
         getYandexDiskUploadUrl(fileName, pathName, process.env.MY_TOKEN),
-      ]);
+      ]).catch((error) => {
+        console.error(error);
+      });
 
       const response = await axios.get(fileLink, { responseType: 'stream' });
       const uploadResponse = await axios.put(uploadUrl, response.data, {
@@ -35,7 +37,7 @@ export const step5 = async (ctx) => {
 
       if (uploadResponse.status !== 201) {
         await ctx.reply(
-          `Произошла ошибка загрузки файла попробуйте начать снова /create`,
+          `Произошла ошибка загрузки файла на стороне yandexDisk. Попробуйте начать снова /create`,
         );
         return ctx.scene.leave();
       }
@@ -71,7 +73,7 @@ export const step5 = async (ctx) => {
       );
     } catch (error) {
       await ctx.reply(
-        'Ошибка при обработке файла возможно файл с таким именем уже есть. Попробуйте еще раз /create',
+        `Произошла ошибка загрузки файла попробуйте начать снова /create`,
       );
       console.error(error);
       return ctx.scene.leave();
@@ -86,12 +88,16 @@ export const step5 = async (ctx) => {
         getYandexDiskUploadUrl(photoName, pathName, process.env.MY_TOKEN),
       ]);
       const response = await axios.get(fileLink, { responseType: 'stream' });
-      const uploadResponse = await axios.put(uploadUrl, response.data, {
-        headers: { 'Content-Type': 'application/octet-stream' },
-      });
+      const uploadResponse = await axios
+        .put(uploadUrl, response.data, {
+          headers: { 'Content-Type': 'application/octet-stream' },
+        })
+        .catch((error) => {
+          console.error(error);
+        });
       if (uploadResponse.status !== 201) {
         await ctx.reply(
-          `Произошла ошибка загрузки файла. Попробуйте начать снова /create`,
+          `Произошла ошибка загрузки файла на стороне yandexDisk. Попробуйте начать снова /create`,
         );
         return ctx.scene.leave();
       }
@@ -126,7 +132,7 @@ export const step5 = async (ctx) => {
       );
     } catch (error) {
       await ctx.reply(
-        'Ошибка при обработке файла возможно файл с таким именем уже есть. Попробуйте еще раз /create',
+        `Произошла ошибка загрузки файла на стороне Notion. Попробуйте начать снова /create`,
       );
       console.error(error);
       return ctx.scene.leave();
