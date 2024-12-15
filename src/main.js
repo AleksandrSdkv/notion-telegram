@@ -7,13 +7,12 @@ const bot = new Telegraf(process.env.BOT_TOKEN);
 
 bot.telegram.setMyCommands([
   { command: 'start', description: 'Start the bot' },
-  { command: 'create', description: 'Создать новый заказ' },
 ]);
 
 bot.use(session());
 bot.use(registrationWizard);
 
-bot.command('create', (ctx) => ctx.scene.enter('registration-wizard'));
+bot.command('create', (ctx) => console.log(ctx.message));
 bot.on(['document', 'photo'], (ctx) => {
   ctx.reply('📁 Файл получен! Запускаю процесс...');
   ctx.scene.enter('registration-wizard');

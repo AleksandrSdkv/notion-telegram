@@ -16,6 +16,6 @@ export const createNewGroup = async (propertiesData) => {
     };
     await notion.pages.create(parameters);
   } catch (error) {
-    console.error('Error fetching database:', error);
+    console.error('Произошла ошибка при отправке данных в Notion:', error);
   }
 };

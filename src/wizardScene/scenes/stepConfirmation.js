@@ -1,6 +1,7 @@
 import { hotels } from '../../constants/data.js';
 import { createNewGroup } from '../../notion/notion.js';
 import { foundHotel } from '../../constants/helpers.js';
+import { stageOut } from '../../constants/helpers.js';
 import { Markup } from 'telegraf';
 export const stepConfirmation = async (ctx) => {
   if (ctx.message.text === 'Выйти') {
@@ -31,7 +32,7 @@ export const stepConfirmation = async (ctx) => {
         `Запрос завершен! 🎉
 		- Имя: ${ctx.wizard.state.personal}
 		- Наименование: ${ctx.wizard.state.product}
-    - Утверждающий: ${ctx.wizard.state.approving}
+   - Утверждающий: ${ctx.wizard.state.approving}
 		- Срочность: ${ctx.wizard.state.quickly}
 		- Счет: ${ctx.wizard.state.expense}
 		- Объект: ${ctx.wizard.state.hotel}

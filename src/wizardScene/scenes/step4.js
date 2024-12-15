@@ -1,4 +1,6 @@
 import { stageOut } from '../../constants/helpers.js';
+import { Markup } from 'telegraf';
+import { key } from '../../constants/buttonConstants.js';
 export const step4 = async (ctx) => {
   if (ctx.message.text === 'Выйти') {
     return await stageOut(ctx);
@@ -14,9 +16,20 @@ export const step4 = async (ctx) => {
     ],
   };
   ctx.wizard.state.product = ctx.message.text;
-  await ctx.reply(
-    `Вы выбрали: ${ctx.message.text}. Далее нужно загрузить счет на оплату`,
-  );
+  try {
+    ctx.reply(
+      `Вы выбрали: ${ctx.message.text}. Выберите срочность заявки:`,
+      Markup.keyboard([['Срочно', 'Не срочно'], [`${key.out}`]])
+        .resize()
+        .oneTime(),
+    );
+  } catch (error) {
+    await ctx.reply(
+      `Произошла ошибка: ${error}. Попробуйте начать снова или загрузите файл позже`,
+    );
+    console.error(error);
+    return ctx.scene.leave();
+  }
 
   return ctx.wizard.next();
 };

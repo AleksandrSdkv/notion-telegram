@@ -7,6 +7,7 @@ export const step2 = async (ctx) => {
   if (ctx.message.text === 'Выйти') {
     return await stageOut(ctx);
   }
+
   const person = foundPerson(ctx.message.text, personal);
   if (!person) {
     await ctx.reply(
@@ -22,6 +23,7 @@ export const step2 = async (ctx) => {
       Markup.keyboard([
         ['Сергей Матюшенко', 'Булат Ханнанов'],
         ['Полина Михайлова', 'Арина Матюшенко'],
+        ['Aleksandr'],
         [`${key.out}`],
       ])
         .resize()

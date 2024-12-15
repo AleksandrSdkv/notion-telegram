@@ -12,6 +12,7 @@ export async function getYandexDiskUploadUrl(
         params: { path: `${pathName}${fileName}`, overwrite: true },
       },
     );
+
     return response.data.href; // URL для загрузки файла на Яндекс Диск
   } catch (error) {
     console.error(
