@@ -23,7 +23,7 @@ export const step2 = async (ctx) => {
       Markup.keyboard([
         ['Сергей Матюшенко', 'Булат Ханнанов'],
         ['Полина Михайлова', 'Арина Матюшенко'],
-        ['Aleksandr'],
+
         [`${key.out}`],
       ])
         .resize()

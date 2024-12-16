@@ -5,10 +5,6 @@ dotenv.config();
 
 const bot = new Telegraf(process.env.BOT_TOKEN);
 
-bot.telegram.setMyCommands([
-  { command: 'start', description: 'Start the bot' },
-]);
-
 bot.use(session());
 bot.use(registrationWizard);
 
@@ -20,7 +16,7 @@ bot.on(['document', 'photo'], (ctx) => {
 bot.start((ctx) =>
   ctx.reply(`Привет ${ctx.message.from.first_name}
 Это бот для создания заявок. Для получения информации о командах нажмите /help
-Для создания заявки, нажмите /create`),
+Для создания заявки отправьте файл`),
 );
 bot.help((ctx) =>
   ctx.reply(

@@ -28,7 +28,7 @@ export const step5 = async (ctx) => {
         ['Somov Hotel', 'Cho Hotel'],
         ['Karl House', 'Ma Apart'],
         ['Spot 80', '1010 Апартаменты'],
-        ['test'],
+
         [`${key.out}`],
       ])
         .resize()
@@ -44,7 +44,7 @@ export const step5 = async (ctx) => {
       ['Somov Hotel', 'Cho Hotel'],
       ['Karl House', 'Ma Apart'],
       ['Spot 80', '1010 Апартаменты'],
-      ['test'],
+
       [`${key.out}`],
     ])
       .resize()

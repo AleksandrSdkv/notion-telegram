@@ -6,7 +6,8 @@ import {
   publishFileToYandexDisk,
   getYandexDiskFileMetadata,
 } from '../../yandexAPI/yandexDiskServices.js';
-
+import dotenv from 'dotenv';
+dotenv.config();
 export const step1 = async (ctx) => {
   ctx.wizard.state.list = {};
   const pathName = process.env.PATH_DISK ? process.env.PATH_DISK : '';
@@ -78,12 +79,7 @@ export const step1 = async (ctx) => {
         ctx.reply(
           `Ваш файл доступен по ссылке: ${res.data.public_url}. Выберите заявителя:`,
           Markup.keyboard([
-            [
-              'Лилия Иванова',
-              'Regina Yunusova',
-              'Гузель Шангараева',
-              'Aleksandr',
-            ],
+            ['Лилия Иванова', 'Regina Yunusova', 'Гузель Шангараева'],
             [`${key.out}`],
           ])
             .resize()
