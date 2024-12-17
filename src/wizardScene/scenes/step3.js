@@ -1,35 +1,35 @@
-import { personal } from '../../constants/data.js';
-import { foundPerson } from '../../constants/helpers.js';
-import { key } from '../../constants/buttonConstants.js';
-import { Markup } from 'telegraf';
 import { stageOut } from '../../constants/helpers.js';
+import { Markup } from 'telegraf';
+import { key } from '../../constants/buttonConstants.js';
 export const step3 = async (ctx) => {
   if (ctx.message.text === 'Выйти') {
     return await stageOut(ctx);
   }
-  const person = foundPerson(ctx.message.text, personal);
-  if (!person) {
-    await ctx.reply(
-      `Вы выбрали: ${ctx.message.text}. К сожалению сотрудника с таким именем нет! Введите /create, чтобы начать снова.`,
-    );
-    ctx.scene.leave();
-    return;
-  }
-  if (person) {
-    ctx.wizard.state.approving = ctx.message.text;
-    await ctx.reply(
-      `Отлично, пожалуйста, введите поле "Наименование" (пример: "Стул"):`,
-      Markup.keyboard([[`${key.out}`]])
+
+  ctx.wizard.state.list['Наименование'] = {
+    title: [
+      {
+        text: {
+          content: ctx.message.text,
+        },
+      },
+    ],
+  };
+  ctx.wizard.state.product = ctx.message.text;
+  try {
+    ctx.reply(
+      `Вы выбрали: ${ctx.message.text}. Выберите срочность заявки:`,
+      Markup.keyboard([['Срочно', 'До 3х дней', 'До 7 дней'], [`${key.out}`]])
         .resize()
         .oneTime(),
     );
-    ctx.wizard.state.list['Утверждающий'] = {
-      people: [
-        {
-          id: person.id,
-        },
-      ],
-    };
+  } catch (error) {
+    await ctx.reply(
+      `Произошла ошибка: ${error}. Попробуйте начать снова или загрузите файл позже`,
+    );
+    console.error(error);
+    return ctx.scene.leave();
   }
-  return ctx.wizard.next(); // Переход к следующему шагу
+
+  return ctx.wizard.next();
 };

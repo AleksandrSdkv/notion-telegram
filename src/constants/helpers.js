@@ -7,6 +7,13 @@ export const foundPerson = (ctx, personal) => {
   );
   return found;
 };
+export const foundPersonById = (id, personal) => {
+  if (!id) {
+    return 'Неправильный формат';
+  }
+  const found = personal.find((person) => person.idTelegram === id);
+  return found;
+};
 export const foundHotel = (ctx, hotels) => {
   if (!ctx) {
     return 'Неправильный формат';

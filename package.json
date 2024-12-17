@@ -21,6 +21,7 @@
     "config": "^3.3.12",
     "dotenv": "^16.4.6",
     "punycode": "^2.3.1",
+    "short-uuid": "^5.2.0",
     "telegraf": "^4.16.3"
   }
 }

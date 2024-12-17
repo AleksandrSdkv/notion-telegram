@@ -3,7 +3,6 @@ import { step1 } from './scenes/step1.js';
 import { step2 } from './scenes/step2.js';
 import { step3 } from './scenes/step3.js';
 import { step4 } from './scenes/step4.js';
-import { step5 } from './scenes/step5.js';
 import { stepConfirmation } from './scenes/stepConfirmation.js';
 
 const registrationWizard = new Scenes.Stage([
@@ -13,7 +12,6 @@ const registrationWizard = new Scenes.Stage([
     step2,
     step3,
     step4,
-    step5,
     stepConfirmation,
   ),
 ]);

@@ -9,13 +9,9 @@ const notion = new Client({
 const blockId = process.env.NOTION_ID_DB;
 
 export const createNewGroup = async (propertiesData) => {
-  try {
-    const parameters = {
-      parent: { database_id: blockId },
-      properties: propertiesData,
-    };
-    await notion.pages.create(parameters);
-  } catch (error) {
-    console.error('Произошла ошибка при отправке данных в Notion:', error);
-  }
+  const parameters = {
+    parent: { database_id: blockId },
+    properties: propertiesData,
+  };
+  await notion.pages.create(parameters);
 };

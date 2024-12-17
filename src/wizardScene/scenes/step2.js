@@ -7,7 +7,6 @@ export const step2 = async (ctx) => {
   if (ctx.message.text === 'Выйти') {
     return await stageOut(ctx);
   }
-
   const person = foundPerson(ctx.message.text, personal);
   if (!person) {
     await ctx.reply(
@@ -17,19 +16,14 @@ export const step2 = async (ctx) => {
     return;
   }
   if (person) {
-    ctx.wizard.state.personal = ctx.message.text;
-    ctx.reply(
-      'Выберите утверждающего:',
-      Markup.keyboard([
-        ['Сергей Матюшенко', 'Булат Ханнанов'],
-        ['Полина Михайлова', 'Арина Матюшенко'],
-
-        [`${key.out}`],
-      ])
+    ctx.wizard.state.approving = ctx.message.text;
+    await ctx.reply(
+      `Отлично, пожалуйста, введите поле "Наименование" (пример: "Стул"):`,
+      Markup.keyboard([[`${key.out}`]])
         .resize()
         .oneTime(),
     );
-    ctx.wizard.state.list['Заявитель'] = {
+    ctx.wizard.state.list['Утверждающий'] = {
       people: [
         {
           id: person.id,
@@ -37,6 +31,5 @@ export const step2 = async (ctx) => {
       ],
     };
   }
-
-  return ctx.wizard.next();
+  return ctx.wizard.next(); // Переход к следующему шагу
 };

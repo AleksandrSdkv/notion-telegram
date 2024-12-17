@@ -1,6 +1,10 @@
 import axios from 'axios';
 import { Markup } from 'telegraf';
 import { key } from '../../constants/buttonConstants.js';
+import { personal } from '../../constants/data.js';
+import { foundPersonById } from '../../constants/helpers.js';
+import pkg from 'short-uuid';
+
 import {
   getYandexDiskUploadUrl,
   publishFileToYandexDisk,
@@ -10,6 +14,7 @@ import dotenv from 'dotenv';
 dotenv.config();
 export const step1 = async (ctx) => {
   ctx.wizard.state.list = {};
+  console.log(ctx.update.message.from);
   const pathName = process.env.PATH_DISK ? process.env.PATH_DISK : '';
 
   let yandexDiskConfig = {
@@ -36,7 +41,8 @@ export const step1 = async (ctx) => {
         process.env.MY_TOKEN,
       ),
     ]).catch((error) => {
-      console.error(error);
+      `Произошла ошибка загрузки файла на стороне yandexDisk. Попробуйте начать снова /create`,
+        console.error(error);
     });
     const response = await axios.get(fileLink, { responseType: 'stream' });
     const uploadResponse = await axios.put(uploadUrl, response.data, {
@@ -49,49 +55,86 @@ export const step1 = async (ctx) => {
       );
       return ctx.scene.leave();
     }
-
-    publishFileToYandexDisk(
-      yandexDiskConfig.fileName,
-      pathName,
-      process.env.MY_TOKEN,
-    ).then((_) => {
-      getYandexDiskFileMetadata(
+    try {
+      publishFileToYandexDisk(
         yandexDiskConfig.fileName,
         pathName,
         process.env.MY_TOKEN,
-      ).then((res) => {
-        ctx.wizard.state.expense = res.data.public_url;
-        ctx.wizard.state.list['Счет'] = {
-          files: [
-            {
-              name: yandexDiskConfig.fileName,
-              external: {
-                url: res.data.public_url,
+      ).then((_) => {
+        getYandexDiskFileMetadata(
+          yandexDiskConfig.fileName,
+          pathName,
+          process.env.MY_TOKEN,
+        ).then((res) => {
+          ctx.wizard.state.expense = res.data.public_url;
+          ctx.wizard.state.list['Счет'] = {
+            files: [
+              {
+                name: yandexDiskConfig.fileName,
+                external: {
+                  url: res.data.public_url,
+                },
               },
-            },
-          ],
-        };
-        if (!res.data.public_url) {
-          ctx.reply(` Произошла ошибка загрузки файла попробуйте начать снова`);
-          return;
-        }
+            ],
+          };
+          if (!res.data.public_url) {
+            ctx.reply(
+              ` Произошла ошибка загрузки файла попробуйте начать снова`,
+            );
+            return;
+          }
 
-        ctx.reply(
-          `Ваш файл доступен по ссылке: ${res.data.public_url}. Выберите заявителя:`,
-          Markup.keyboard([
-            ['Лилия Иванова', 'Regina Yunusova', 'Гузель Шангараева'],
-            [`${key.out}`],
-          ])
-            .resize()
-            .oneTime(),
-        );
+          const person = foundPersonById(ctx.update.message.from.id, personal);
+          ctx.wizard.state.personal = person.name;
+          ctx.wizard.state.list['Заявитель'] = {
+            people: [
+              {
+                id: person.id,
+              },
+            ],
+          };
 
-        return ctx.wizard.next();
+          ctx.wizard.state.list['Исполнитель'] = {
+            // id Даши
+            people: [
+              {
+                id: '18870c7a-d18a-4dc5-8b90-7cc2598fccd4',
+              },
+            ],
+          };
+          const shortId = pkg.generate();
+          ctx.wizard.state.list['Уникальный номер'] = {
+            rich_text: [
+              {
+                text: {
+                  content: shortId,
+                },
+              },
+            ],
+          };
+          ctx.reply(
+            `Отлично ${person.name}. Ваш файл доступен по ссылке: ${res.data.public_url}. Выберите утверждающего:`,
+            Markup.keyboard([
+              ['Сергей Матюшенко', 'Булат Ханнанов'],
+              ['Полина Михайлова', 'Арина Матюшенко'],
+
+              [`${key.out}`],
+            ])
+              .resize()
+              .oneTime(),
+          );
+
+          return ctx.wizard.next();
+        });
       });
-    });
+    } catch (error) {
+      await ctx.reply(
+        `Произошла ошибка загрузки файла: подождите немного и попробуйте начать снова`,
+      );
+    }
   } catch (error) {
     await ctx.reply(
-      `Произошла ошибка загрузки файла: ${error} попробуйте начать снова`,
+      `Произошла ошибка загрузки файла: подождите немного и попробуйте начать снова`,
     );
     console.error(error);
     return ctx.scene.leave();
